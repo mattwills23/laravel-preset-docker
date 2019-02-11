@@ -1,0 +1,46 @@
+version: '3'
+networks:
+  backend:
+    driver: bridge
+volumes:
+  database:
+    driver: local
+services:
+  app:
+    build:
+      context: ./docker/app
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www
+    networks:
+      - backend
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/web/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - backend
+  db:
+    image: mysql:5.7
+    ports:
+      - "4306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - database:/var/lib/mysql/
+    networks:
+      - backend
+  node:
+    image: node:11.9
+    command: tail -f /dev/null
+    working_dir: /var/www
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/var/www

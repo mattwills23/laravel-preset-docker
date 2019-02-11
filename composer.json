@@ -1,0 +1,31 @@
+{
+  "name": "mattwills23/laravel-preset-docker",
+  "description": "A Laravel preset that sets up a Docker-based local development environment.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Matt Williams",
+      "email": "matt@mattwilliams.io",
+      "homepage": "https://mattwilliams.io",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "laravel/framework": "^5.7",
+    "nunomaduro/laravel-console-task": "^1.2",
+    "sixlive/dotenv-editor": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "mattwills23\\LaravelPresetDocker\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "mattwills23\\LaravelPresetDocker\\PresetServiceProvider"
+      ]
+    }
+  }
+}
