@@ -22,24 +22,13 @@ You should have Docker installed on your machine and be familiar with `docker-co
 
 ## Installation
 
-1. Add the repository to your `composer.json` file:
-
-	```json
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/mattwills23/laravel-preset-docker"
-		}
-	]
-	```
-
-2. Install the package via composer:
+1. Install the package via composer:
 
 	```bash
 	composer require --dev mattwills23/laravel-preset-docker
 	```
 	
-3. Run the `preset` command with the `docker` option:
+2. Run the `preset` command with the `docker` option:
 
 	```bash
 	php artisan preset docker
