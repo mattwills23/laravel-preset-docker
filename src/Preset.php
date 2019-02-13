@@ -27,7 +27,7 @@ class Preset extends BasePreset
         });
 
         $command->task('Update environment files', function () use ($options)  {
-            static::updateEnvFiles($options);
+            static::updateEnvironmentFiles($options);
         });
 
         static::displaySuccessMessage($command);
@@ -72,8 +72,6 @@ class Preset extends BasePreset
 
     public static function installComposerPackages($options)
     {
-        $packages = [];
-
         if ($options['redis']) {
             $packages[] = 'predis/predis';
         }
@@ -83,7 +81,7 @@ class Preset extends BasePreset
         }
     }
 
-    public static function updateEnvFiles($options)
+    public static function updateEnvironmentFiles($options)
     {
         $editor = new DotenvEditor;
         $editor->load(base_path('.env'));
