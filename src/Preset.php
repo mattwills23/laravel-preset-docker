@@ -8,10 +8,13 @@ use Illuminate\Foundation\Console\Presets\Preset as BasePreset;
 
 class Preset extends BasePreset
 {
-    public static function install($command, $options)
+    public static function install($command)
     {
+        static::displayConfigurationMessage($command);
 
-        $command->task('Publish docker files', function () {
+        $options = static::getConfigurationOptions($command);
+
+        $command->task('Publish docker folder', function () {
             static::publishDockerFiles();
         });
 
@@ -19,15 +22,30 @@ class Preset extends BasePreset
             static::configureDockerCompose($options);
         });
 
-        if ($options['redis']) {
-            $command->task('Install composer packages', function () use ($options)  {
-                static::installComposerPackages();
-            });
-        }
+        $command->task('Install required composer packages', function () use ($options)  {
+            static::installComposerPackages($options);
+        });
 
         $command->task('Update environment files', function () use ($options)  {
             static::updateEnvFiles($options);
         });
+
+        static::displaySuccessMessage($command);
+    }
+
+    public static function displayConfigurationMessage($command)
+    {
+        $command->info('By default this preset configures containers running the following software:');
+        $command->table(['Software','Version'],[['PHP','7.2'],['Nginx','1.5.8'],['MySQL','5.7'],['Node','11.9']]);
+    }
+
+    public static function getConfigurationOptions($command)
+    {
+        $options['redis'] = $command->confirm('Would you like to add a Redis container?', false);
+        $options['mailhog'] = $command->confirm('Would you like to add Mailhog container?', false);
+        $options['test-db'] = $command->confirm('Would you like to use a separate MySQL database for testing?', false);
+
+        return $options;
     }
 
     public static function publishDockerFiles()
@@ -52,13 +70,17 @@ class Preset extends BasePreset
         fclose($compose);
     }
 
-    public static function installComposerPackages()
+    public static function installComposerPackages($options)
     {
-        $packages = [
-            'predis/predis',
-        ];
+        $packages = [];
 
-        exec('composer require '. implode(' ', $packages));
+        if ($options['redis']) {
+            $packages[] = 'predis/predis';
+        }
+
+        if (!empty($packages)) {
+            exec('composer require '. implode(' ', $packages));
+        }
     }
 
     public static function updateEnvFiles($options)
@@ -94,5 +116,11 @@ class Preset extends BasePreset
             $editor->set('SESSION_DRIVER', 'array');
             $editor->save();
         }
+    }
+
+    public static function displaySuccessMessage($command)
+    {
+        $command->info('Docker preset installed successfully.');
+        $command->info('Please run "docker-compose up -d" to build and start the environment.');
     }
 }
