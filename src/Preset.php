@@ -6,8 +6,16 @@ use Illuminate\Filesystem\Filesystem;
 use sixlive\DotenvEditor\DotenvEditor;
 use Illuminate\Foundation\Console\Presets\Preset as BasePreset;
 
+/**
+ * Class Preset
+ *
+ * @package mattwills23\LaravelPresetDocker
+ */
 class Preset extends BasePreset
 {
+    /**
+     * @param $command
+     */
     public static function install($command)
     {
         static::displayConfigurationMessage($command);
@@ -22,23 +30,30 @@ class Preset extends BasePreset
             static::configureDockerCompose($options);
         });
 
-        $command->task('Install required composer packages', function () use ($options)  {
+        $command->task('Install required composer packages', function () use ($options) {
             static::installComposerPackages($options);
         });
 
-        $command->task('Update environment files', function () use ($options)  {
+        $command->task('Update environment files', function () use ($options) {
             static::updateEnvironmentFiles($options);
         });
 
         static::displaySuccessMessage($command);
     }
 
+    /**
+     * @param $command
+     */
     public static function displayConfigurationMessage($command)
     {
         $command->info('By default this preset configures containers running the following software:');
-        $command->table(['Software','Version'],[['PHP','7.2'],['Nginx','1.5.8'],['MySQL','5.7'],['Node','11.9']]);
+        $command->table(['Software','Version'], [['PHP','7.2'],['Nginx','1.5.8'],['MySQL','5.7'],['Node','11.9']]);
     }
 
+    /**
+     * @param $command
+     * @return mixed
+     */
     public static function getConfigurationOptions($command)
     {
         $options['redis'] = $command->confirm('Would you like to add a Redis container?', false);
@@ -48,6 +63,9 @@ class Preset extends BasePreset
         return $options;
     }
 
+    /**
+     *
+     */
     public static function publishDockerFiles()
     {
         copy(__DIR__.'/stubs/docker-compose.yml', base_path('docker-compose.yml'));
@@ -57,12 +75,15 @@ class Preset extends BasePreset
         });
     }
 
+    /**
+     * @param $options
+     */
     public static function configureDockerCompose($options)
     {
         $compose = fopen(base_path('docker-compose.yml'), 'a');
 
         foreach ($options as $key => $option) {
-            if ($option){
+            if ($option) {
                 fwrite($compose, PHP_EOL.file_get_contents(__DIR__.'/stubs/optional/'.$key.'.yml'));
             }
         }
@@ -70,17 +91,23 @@ class Preset extends BasePreset
         fclose($compose);
     }
 
+    /**
+     * @param $options
+     */
     public static function installComposerPackages($options)
     {
         if ($options['redis']) {
             $packages[] = 'predis/predis';
         }
 
-        if (!empty($packages)) {
+        if (! empty($packages)) {
             exec('composer require '. implode(' ', $packages));
         }
     }
 
+    /**
+     * @param $options
+     */
     public static function updateEnvironmentFiles($options)
     {
         $editor = new DotenvEditor;
@@ -116,6 +143,9 @@ class Preset extends BasePreset
         }
     }
 
+    /**
+     * @param $command
+     */
     public static function displaySuccessMessage($command)
     {
         $command->info('Docker preset installed successfully.');
